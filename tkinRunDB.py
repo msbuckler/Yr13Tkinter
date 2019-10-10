@@ -3,6 +3,7 @@ import sqlite3 as sq #For tables and database
 import datetime
 
 window = Tk()
+window.withdraw()
 window.title("Run Tracker")
 window.geometry('1000x800+0+0')
 header = Label(window, text="Running Tracker", font=("impact",30,"bold"), fg="steelblue").pack()
@@ -129,6 +130,66 @@ button_2.place(x=10,y=400)
 
 button_3 = Button(window,text="Open DB",command=record)
 button_3.place(x=10,y=500)
+
+
+lgwindow = Toplevel(window)
+lgwindow.title("Login")
+
+con = sq.connect("My Database")
+c = con.cursor()
+
+def checklogin():
+    user = entry1.get()
+    pswd = entry2.get()
+    c.execute('SELECT username, password from Users WHERE username=? AND password=?', (user, pswd))
+    if c.fetchone() is not None:
+    #record = c.fetchall()
+        welcomelabel = Label(lgwindow, text="Welcome").grid(row=3, column=0)
+        window.deiconify()
+   # print(record)
+   # uname = record[0][0]
+   # pword = record[0][1]
+   # print(uname,pword)
+
+    else:
+        faillabel = Label(lgwindow, text="Login Failed").grid(row=3, column=0)
+     # print ("Login failed")
+    
+
+def register():
+    user = entry1.get()
+    pswd = entry2.get()
+    c.execute('SELECT username from Users WHERE username=?', (user,))
+    if c.fetchone() is not None:
+        existslabel = Label(lgwindow, text="Username Already Exists").grid(row=3, column=0)
+        #print("Username already exists")
+
+    else:
+        c.execute ('INSERT INTO Users (username, password) VALUES(?,?)',(user, pswd))
+        con.commit()
+        reglabel = Label(lgwindow, text="Registered").grid(row=3, column=0)
+        #print("Registered")
+
+# creating 2 text labels and input labels
+
+label1 = Label(lgwindow, text = "Username").grid(row = 0) # this is placed in 0 0
+# 'Entry' is used to display the input-field
+entry1 = Entry(lgwindow)
+entry1.grid(row = 0, column = 1) # this is placed in 0 1
+
+label2 = Label(lgwindow, text="Password").grid(row = 1) # this is placed in 1 0
+entry2 = Entry(lgwindow)
+entry2.grid(row = 1, column = 1) # this is placed in 1 1
+blanklabel = Label(lgwindow).grid(row=3, column=0)
+
+# 'buttons
+btnReg = Button(lgwindow, text='Register', command=register)
+btnReg.grid(row=2, column=0)
+btnLogin = Button(lgwindow, text="Login", command=checklogin)
+btnLogin.grid(row=2, column=1)
+
+
+
 
 
 window.mainloop() #mainloop() -> make sure that window stays open
